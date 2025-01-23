@@ -96,7 +96,7 @@ async def process_dishes(dishes: list[Dish], candidates: list[tuple[int, str]], 
         _id, dish = result[0]
         tokens = result[1]
         print(_id, dish, tokens)
-        dishes[_id].tokens = [tokens]
+        dishes[_id].tokens = tokens
 
     save_dishes(dishes, tokenized_dishes, ['idx', 'text', 'tokens'])
 

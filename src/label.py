@@ -62,11 +62,13 @@ def get_llm_with_prompt():
     """5. 地名：表示这个菜的发源或者流行的地方。例如`重庆|小面`中的`重庆`""" \
     """6. 品牌：表示这个菜的发源或者流行的品牌。例如`正新|鸡排`中的`正新`""" \
     """7. 其他：表示这个词语不属于上述任何一类。""" \
-    """回答之前，请反复确认如下几点""" \
+    """回答之前，请确认如下几点""" \
     """1. 你给出的结果中，词语的数量是否和输入的词数一致。不要多加也不要遗漏。""" \
-    """2. 输出的分类和输入分词结果一一对应，每个分类之间用|隔开。"""\
-    """3. 不要有分类以外的任何内容或者空格。""" \
-    """4. 分类名要准确，不能出现以上7种分类之外的分类。"""
+    """2. 输出的分类和输入分词结果一一对应，每个分类之间用|隔开。不要有空格"""\
+    """3. 分类名要准确，不能出现以上7种分类之外的分类。""" \
+    """4. 输出只有一行。""" \
+    """5. 不要输出用户输入的内容""" \
+    """6. 反复确认，不要有分类之外的任何内容！！！"""
 
     few_shot_prompt = FewShotChatMessagePromptTemplate(
         examples = get_few_shot_examples(),
@@ -105,15 +107,15 @@ async def process_dishes(dishes: list[Dish], candidates: list[tuple[int, str]], 
 
     for result in zip(candidates, response):
         _id, dish = result[0]
-        tokens = result[1]
-        print(_id, dish, tokens)
-        dishes[_id].labels = [tokens]
+        labels = result[1]
+        print(_id, dish, labels)
+        dishes[_id].labels = labels
 
     save_dishes(dishes, labeled_dishes, ['idx', 'text', 'tokens', 'labels'])
 
 async def label_dishes(dishes: list[Dish]):
     llm = get_llm_with_prompt()
-    candidates = [(i, '|'.join(dish.tokens)) for i, dish in enumerate(dishes)]
+    candidates = [(i, dish.tokens) for i, dish in enumerate(dishes)]
     for i in range(0, len(candidates), BATCH_SIZE):
         await process_dishes(dishes, candidates[i:i+BATCH_SIZE], llm)
 
@@ -126,7 +128,7 @@ async def test():
         "奥尔良|鸡肉|披萨",
         "元气森林|氦苏打水"
     ]
-    await label_dishes([Dish(idx=idx, text=dish, tokens=dish.split('|')) for idx, dish in enumerate(test_dishes)])
+    await label_dishes([Dish(idx=idx, text=dish, tokens=dish) for idx, dish in enumerate(test_dishes)])
 
 async def main():
     dishes = load_dishes(tokenized_dishes)

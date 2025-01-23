@@ -18,11 +18,6 @@ def load_dishes(filename: str) -> list[Dish]:
     with open(filename, 'r') as f:
         reader = csv.DictReader(f)
         for idx, row in enumerate(reader):
-            if 'tokens' in row:
-                row['tokens'] = row['tokens'][2:-2].split('|')
-            if 'labels' in row:
-                row['labels'] = row['labels'][2:-2].split('|')
-
             results.append(Dish(**row)) # type: ignore
     return results
 
