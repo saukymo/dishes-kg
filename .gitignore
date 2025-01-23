@@ -9,3 +9,11 @@ wheels/
 # Virtual environments
 .venv
 env
+
+# Data
+data/origin/
+data/cities/
+data/dishes/
+data/configurations
+
+.DS_Store
